@@ -2,7 +2,7 @@ Download Mothur files from: https://github.com/mothur/mothur/releases
 
 Unzip and create a working directory as it is as extracted folder and place the forward- reverse .fastq files in the folder. 
 
-Download "silva.bacteria.fasta" and place it in the workign directory and follow following commads
+Download zip folder from https://mothur.s3.us-east-2.amazonaws.com/wiki/silva.bacteria.zip, and place ""silva.bacteria.fasta" it in the workig directory and follow following commads
 
 
 1.
