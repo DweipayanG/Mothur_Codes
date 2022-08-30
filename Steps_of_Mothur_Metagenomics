@@ -1,0 +1,475 @@
+1.
+mothur > 
+make.file(inputdir=., type=fastq, prefix=stability)
+
+This will
+Will segregate data in groups 
+
+This will produce:
+“Stability (FILES file)”
+
+2. 
+mothur > 
+make.contigs(file=stability.files, processors=8)
+
+This will 
+Will make contigs using stability (FILES file) as input this step will not filter inadequate sequence as parameters are not given (more on point 4)
+
+This will produce:
+“Input.trim.contigs (FASTA File)”
+“Input.scrap.contigs (FASTA File)”	
+“Input.contigs_report (CONTIGS_REPORT File)”
+“Input.contigs (COUNT_TABLE File)”
+ 	In this case stability is input file so…..
+“stability.trim.contigs (FASTA File)”
+“stability.scrap.contigs (FASTA File)”	
+“stability.contigs_report (CONTIGS_REPORT File)”
+“stability.contigs (COUNT_TABLE File)”
+
+3.
+mothur > 
+summary.seqs(fasta=stability.trim.contigs.fasta, count=stability.contigs.count_table)
+
+This will:
+Create a summary file containing information like sequence name, start, end, ambigs, polymer, number of sequences using INPUT FILES: “stability.trim.contigs (FASTA) and “stability.contigs (COUNT_TABLE) and will generate “stability.trim.contigs (SUMMARY File)”
+This will produce:
+“Input_file_name (SUMMARY File)”
+		In this case:	
+“stability.trim.contigs (SUMMARY File)”
+
+4.
+mothur > 
+
+make.contigs(file=stability.files, maxambig=0, maxlength=480, maxhomop=8)
+
+This will:
+Create a contigs using given parameters as a cut off measure for filtering out inadequate sequences. This will use INPUT file: stability (FILES file)”
+This will produce: (Files created in step 2 will be automatically replaced in this step)
+“Input.trim.contigs (FASTA File)”
+“Input.scrap.contigs (FASTA File)”	
+“Input.contigs_report (CONTIGS_REPORT File)”
+“Input.contigs (COUNT_TABLE File)”
+ 	In this case stability is input file so…..
+“stability.trim.contigs (FASTA File)”
+“stability.scrap.contigs (FASTA File)”	
+“stability.contigs_report (CONTIGS_REPORT File)”
+“stability.contigs (COUNT_TABLE File)”
+
+
+Now you have contigs!
+
+
+5. 
+
+mothur > 
+
+unique.seqs(fasta=stability.trim.contigs.fasta, count=stability.contigs.count_table)
+This will:
+Use the newly created and filtered stability.trim.contigs (FASTA File) and stability.contigs (COUNT_TABLE File) to retrieve the information on all the unique sequence present in the file”
+This will produce: 
+“Input.trim.contigs (COUNT_TABLE File)”
+“Input.trim.contigs.unique (FASTA File)”	
+ 	In this case stability is input file so…..
+“stability.trim.contigs (COUNT_TABLE File)”
+“stability.trim.contigs.unique (FASTA File)”	
+
+Now you have all the unique sequences present in your fastq file that are of acceptable length 
+
+
+6. 
+
+pcr.seqs(fasta= silva.bacteria.fasta, start=11895, end=25318, keepdots=F)      [Original preference by dev]
+OR 
+pcr.seqs(fasta=138_silva_align.align, start=1112, end=8194, keepdots=F)
+
+This will:
+Use the reference database and start and end site of alignment to further restrict the searching parameters to our choice of region in the sequence.
+This will produce: 
+“Input.pcr (ALIGN File)”
+“Input.bad.accnos (ACCNOS File)”
+“Input.scrap.pcr (ALIGN File)”	
+ 	In this case stability is input file so…..
+“138_silva_align.pcr (ALIGN File)”
+“138_silva_align.bad.accnos (ACCNOS File)”
+“138_silva_align.scrap.pcr (ALIGN File)”
+
+7. 
+
+rename.file(input= silva.bacteria.pcr.fasta, new=silva.v4.fasta)
+This will produce: 
+“SILVA.v4 (FASTA File)”
+
+
+8.
+
+summary.seqs(fasta=silva.v4.fasta)
+This will produce: 
+“SILVA.v4 (SUMMARY File)”
+
+
+
+now you have customized reference database for alignment that will have only v3 and v4 region for further alignments
+
+
+9.
+
+align.seqs(fasta=stability.trim.contigs.unique.fasta,reference=silva.v4.fasta)
+
+This will:
+Perform the alignment of all the unique sequences present in your fastq files with customized database you created in the last step. Input files will be fasta file with unique sequences and customized database.
+This will produce: 
+“Input (ALIGN File)”
+“Input.align_report (ALIGN_REPORT File)”
+“Input.flip.accnos (ACCNOS File)”
+
+ 	In this case stability is input file so…..
+“stability.trim.contigs.unique (ALIGN File)”
+“stability.trim.contigs.unique.align_report (ALIGN_REPORT File)”
+“stability.trim.contigs.unique.flip.accnos (ACCNOS File)”
+
+
+10.
+summary.seqs(fasta=stability.trim.contigs.unique.align, count=stability.trim.contigs.count_table)
+
+This will:
+Summarise the previous alignment file
+This will produce: 
+“Input (SUMMARY File)”
+
+ 	In this case stability is input file so…..
+“stability.trim.contigs.unique (SUMMARY File)”
+
+
+11.
+
+screen.seqs(fasta=stability.trim.contigs.unique.align, count=stability.trim.contigs.count_table, start=5221, end=7083)
+
+This will:
+Screen the sequences of different size for further refinement 
+This will produce: 
+“Input.good (ALIGN File)”
+“Input.bad (ACCNOS File)”
+“Input.good (COUNT_TABLE File)”
+
+ 	In this case stability is input file so…..
+“stability.trim.contigs.unique.good (ALIGN File)”
+“stability.trim.contigs.unique.bad (ACCNOS File)”
+“stability.trim.contigs.good (COUNT_TABLE File)”
+
+
+12.
+summary.seqs(fasta=current, count=current)
+
+This will:
+Give you the summary of fasta file in question 
+This will produce: 
+“Input.good (SUMMARY File)”
+
+ 	In this case stability is input file so…..
+“stability.trim.contigs.unique.good (SUMMARY File)”
+
+
+13.
+filter.seqs(fasta=stability.trim.contigs.unique.good.align, vertical=T, trump=.)
+
+This will:
+Now we know our sequences overlap the same alignment coordinates, we want to make sure they only overlap that region. So we’ll filter the sequences to remove the overhangs at both ends. Since we’ve done paired-end sequencing, this shouldn’t be much of an issue, but whatever. In addition, there are many columns in the alignment that only contain gap characters (i.e. “-“). These can be pulled out without losing any information. We’ll do all this with filter.seqs:
+This will produce: 
+“stability.filter (FILTER File)”
+“stability.trim.contigs.unique.good.filter (FASTA File)”
+
+
+
+14.
+unique.seqs(fasta=stability.trim.contigs.unique.good.filter.fasta, count=stability.trim.contigs.good.count_table)
+
+
+This will:
+Reduce the redundancy:
+This will produce: 
+“stability.trim.contigs.unique.good.filter.unique (FASTA File)”
+“stability.trim.contigs.unique.good.filter (COUNT_TABLE File)”
+
+
+15.
+
+pre.cluster(fasta=stability.trim.contigs.unique.good.filter.unique.fasta, count=stability.trim.contigs.unique.good.filter.count_table, diffs=2)
+
+This will:
+The next thing we want to do to further de-noise our sequences is to pre-cluster the sequences using the pre.cluster command allowing for up to 2 differences between sequences. This command will split the sequences by group and then sort them by abundance and go from most abundant to least and identify sequences that are within 2 nt of each other. If they are then they get merged. We generally favor allowing 1 difference for every 100 bp of sequence:
+This will produce: 
+“stability.trim.contigs.unique.good.filter.unique.precluster (FASTA File)”
+“stability.trim.contigs.unique.good.filter.unique.prescluster (COUNT_TABLE File)”
+“stability.trim.contigs.unique.good.filter.unique.prescluster.ControlCS32 (MAP File)”
+“stability.trim.contigs.unique.good.filter.unique.prescluster.Treaptment1T1S33 (MAP File)”
+“stability.trim.contigs.unique.good.filter.unique.prescluster.Treaptment2T2S34 (MAP File)”
+“stability.trim.contigs.unique.good.filter.unique.prescluster.Treaptment3T3S35 (MAP File)”
+
+
+
+16.
+chimera.vsearch(fasta=stability.trim.contigs.unique.good.filter.unique.precluster.fasta, count=stability.trim.contigs.unique.good.filter.unique.precluster.count_table, dereplicate=t)
+
+This will:
+At this point we have removed as much sequencing error as we can and it is time to turn our attention to removing chimeras. We’ll do this using the VSEARCH algorithm that is called within mothur using the chimera.vsearch command. Again, this command will split the data by sample and check for chimeras. Our preferred way of doing this is to use the abundant sequences as our reference. In addition, if a sequence is flagged as chimeric in one sample, the default (dereplicate=F) is to remove it from all samples. Our experience suggests that this is a bit aggressive since we’ve seen rare sequences get flagged as chimeric when they’re the most abundant sequence in another sample:
+This will produce: 
+“stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch (FASTA File)”
+“stability.trim.contigs.unique.good.filter.unique.prescluster.denovo.vsearch (ACCNOS File)”
+“stability.trim.contigs.unique.good.filter.unique.prescluster.denovo.vsearch (COUNT_TABLE File)”
+“stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch (CHIMERAS File)”
+“stability.trim.contigs.unique.good.filter.unique.precluster.ControlCS32 (FASTA File)”
+“stability.trim.contigs.unique.good.filter.unique.precluster.Treatment1T1S33 (FASTA File)”
+“stability.trim.contigs.unique.good.filter.unique.precluster.Treatment2T2S34 (FASTA File)”
+“stability.trim.contigs.unique.good.filter.unique.precluster.Treatment3T3S35 (FASTA File)”
+
+
+
+17. 
+summary.seqs(fasta=current, count=current)
+
+18.
+
+classify.seqs(fasta=stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.fasta, count=stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.count_table, reference= trainset18_062020.rdp.fasta, taxonomy= trainset18_062020.rdp.tax) 
+
+Prefer the above mentioned command which is second option …… 
+
+
+This will:
+As a final quality control step, we need to see if there are any “undesirables” in our dataset. Sometimes when we pick a primer set they will amplify other stuff that gets to this point in the pipeline such as 18S rRNA gene fragments or 16S rRNA from Archaea, chloroplasts, and mitochondria. There’s also just the random stuff that we want to get rid of. Now you may say, “But wait I want that stuff”. Fine. But, the primers we use, are only supposed to amplify members of the Bacteria and if they’re hitting Eukaryota or Archaea, then its a mistake. Also, realize that chloroplasts and mitochondria have no functional role in a microbial community. But I digress. Let’s go ahead and classify those sequences using the Bayesian classifier with the classify.seqs command:
+This will produce: 
+“stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.138_silva_tax.wang.tax (SUMMARY File)”
+“stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.138_silva_tax.wang (TAXONOMY File)”
+“stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.138_silva_tax.wang.flip (ACCNOS File)”
+“138_silva_tax.138_silva_align.8mer.numNonZero (NUMNONZERO File)”
+“138_silva_tax.138_silva_align.8mer.prob (PROB File)”
+“138_silva_tax.tree (SUM File)”
+“138_silva_tax.tree.train (TRAIN File)”
+Or 
+
+
+
+19.
+
+remove.lineage(fasta=stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.fasta, count=stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.count_table, taxonomy=stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.138_silva_tax.wang.taxonomy, taxon=Chloroplast-Mitochondria-unknown-Archaea-Eukaryota)
+
+or 
+remove.lineage(fasta=stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.fasta, count=stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.count_table, taxonomy=stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.rdp.wang.taxonomy, taxon=Chloroplast-Mitochondria-unknown-Archaea-Eukaryota)
+
+
+This will:
+Now that everything is classified we want to remove our undesirables. We do this with the remove.lineage command
+This creates a pick.tax.summary file with the undesirables removed. At this point we have curated our data as far as possible :
+This will produce: 
+“stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.138_silva_tax.wang.pick (TAXONOMY File)”
+“stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.138_silva_tax.wang (ACCNOS File)”
+“stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.pick (FASTA File)”
+“stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.pick (COUNT_TABLE File)”
+
+20.
+
+
+summary.tax(taxonomy=current, count=current)
+
+This will:
+Now that everything is classified we want to remove our undesirables. We do this with the remove.lineage command
+This creates a pick.tax.summary file with the undesirables removed. At this point we have curated our data as far as possible :
+This will produce: 
+“stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.138_silva_tax.wang.pick.tax (SUMMARY File)”
+
+stability.trim.contigs.unique.good.filter.unique.precluster.denovo.vsearch.rdp.wang.pick.taxonomy
+
+21.
+
+rename.file(fasta=current, count=current, taxonomy=current, prefix=final)
+ 
+This will:
+create files with final name that can be used for analysis:
+This will produce: 
+“final (COUNT_TABLE File)”
+“final (FASTA file)”
+“final (Taxonomy File)”
+
+
+Now you have files for analysis!!! “final files”
+
+
+
+OTUs list formation
+
+This will:
+ use our cluster.split command. In this approach, we use the taxonomic information to split the sequences into bins and then cluster within each bin. In our testing, the MCC values when splitting the datasets at the class and genus levels were within 98.0 and 93.0%, respectively, of the MCC values obtained from the entire test dataset. These decreases in MCC value resulted in the formation of as many as 4.7 and 22.5% more OTUs, respectively, than were observed from the entire dataset. The use of the cluster splitting heuristic was probably not worth the loss in clustering quality. However, as datasets become larger, it may be necessary to use the heuristic to clustering the data into OTUs. The advantage of the cluster.split approach is that it should be faster, use less memory, and can be run on multiple processors. In an ideal world we would prefer the traditional route because “Trad is rad”, but we also think that kind of humor is funny.… In this command we use taxlevel=4, which corresponds to the level of Order:
+This will produce: 
+“final (DIST File)”
+“final.opti_mcc (LIST File)”
+“final.opti_mcc (SENSSPEC File)”
+
+Additional and Compulsory command (Not available on Mothur website but very important for R commands to follow later) 
+
+count.seqs(count=final.count_table, compress=f)  
+
+# This will produce file: “final.full.count_table”
+	
+
+22.
+
+cluster.split(fasta=final.fasta, count=final.count_table, taxonomy=final.taxonomy, taxlevel=4, cutoff=0.03)
+
+	Will Produce:
+		
+		“final.dist”
+		“final.opti_mcc.list”
+		“final.opti_mcc.sensspec”
+
+23.
+make.shared(list=final.opti_mcc.list, count=final.count_table, label=0.03)
+
+	will Produce:
+		
+		“final.opti_mcc.shared”
+
+24.
+classify.otu(list=final.opti_mcc.list, count=final.count_table, taxonomy=final.taxonomy, label=0.03)
+
+	Will Produce:
+		
+		“final.opti_mcc.0.03.cons.taxonomy”
+		“final.opti_mcc.0.03.cons.tax.summary”
+
+OTU-based analysis
+
+Alpha diversity
+
+34. 
+rarefaction.single(shared=final.opti_mcc.shared, calc=sobs, freq=100)
+
+	Will Produce:
+		
+		“final.opti_mcc.groups.rarefaction”
+
+
+35.
+summary.single(shared=final.opti_mcc.shared, calc=nseqs-coverage-sobs-invsimpson, subsample=T)
+
+	Will Produce:
+
+			“final.opti_mcc.groups.ave-std.summary"	
+
+Beta diversity measurements
+
+36.
+dist.shared(shared=final.opti_mcc.shared, calc=thetayc-jclass, subsample=t)
+
+37.
+pcoa(phylip=final.opti_mcc.thetayc.0.03.lt.ave.dist)
+
+38.
+nmds(phylip=final.opti_mcc.thetayc.0.03.lt.ave.dist)
+
+39.
+nmds(phylip=final.opti_mcc.thetayc.0.03.lt.ave.dist, mindim=3, maxdim=3)
+
+
+ASV list formation
+
+25.
+make.shared(count=final.count_table)
+
+26.
+classify.otu(list=final.asv.list, count=final.count_table, taxonomy=final.taxonomy, label=ASV)
+
+
+Phylotypes
+
+27.
+phylotype(taxonomy=final.taxonomy)
+
+28.
+make.shared(list=final.tx.list, count=final.count_table, label=1)
+
+29.
+classify.otu(list=final.tx.list, count=final.count_table, taxonomy=final.taxonomy, label=1)
+
+Phylogenetic
+
+30.
+ dist.seqs(fasta=final.fasta, output=lt)
+
+31.
+
+clearcut(phylip=final.phylip.dist)
+
+Analysis
+
+32.
+count.groups(shared=final.opti_mcc.shared)
+
+33.
+sub.sample(shared=final.opti_mcc.shared, size=4037)
+
+
+
+
+
+
+Primers:
+
+V13F:- 5’ AGAGTTTGATGMTGGCTCAG 3’ 
+V13R:- 5’ TTACCGCGGCMGCSGGCAC 3’
+
+>E.coli
+ATTGAACGCTGGCGGCAGGCCTAACACATGCAAGTCGAACGGTAACAGGAAGCAGCTTGCTGCTTCGCTGACGAGT
+GGCGGACGGGTGAGTAATGTCTGGGAAGCTGCCTGATGGAGGGGGATAACTACTGGAAACGGTAGCTAATACCGCA
+TAATGTCGCAAGACCAAAGAGGGGGACCTTCGGGCCTCTTGCCATCGGATGTGCCCAGATGGGATTAGCTTGTTGG
+TGGGGTAACGGCTCACCAAGGCGACGATCCCTAGCTGGTCTGAGAGGATGACCAGCCACACTGGAACTGAGACACG
+GTCCAGACTCCTACGGGAGGCAGCAGTGGGGAATATTGCACAATGGGCGCAAGCCTGATGCAGCCATGCCGCGTGT
+ATGAAGAAGGCCTTCGGGTTGTAAAGTACTTTCAGCGGGGAGGAAGGGAGTAAAGTTAATACCTTTGCTCATTGAC
+GTTACCCGCAGAAGAAGCACCGGCTAACTCCGTGCCAGCAGCCGCGGTAATACGGAGGGTGCAAGCGTTAATCGGA
+ATTACTGGGCGTAAAGCGCACGCAGGCGGTTTGTTAAGTCAGATGTGAAATCCCCGGGCTCAACCTGGGAACTGCA
+TCTGATACTGGCAAGCTTGAGTCTCGTAGAGGGGGGTAGAATTCCAGGTGTAGCGGTGAAATGCGTAGAGATCTGG
+AGGAATACCGGTGGCGAAGGCGGCCCCCTGGACGAAGACTGACGCTCAGGTGCGAAAGCGTGGGGAGCAAACAGGA
+TTAGATACCCTGGTAGTCCACGCCGTAAACGATGTCGACTTGGAGGTTGTGCCCTTGAGGCGTGGCTTCCGGAGCT
+AACGCGTTAAGTCGACCGCCTGGGGAGTACGGCCGCAAGGTTAAAACTCAAATGAATTGACGGGGGCCCGCACAAG
+CGGTGGAGCATGTGGTTTAATTCGATGCAACGCGAAGAACCTTACCTGGTCTTGACATCCACGGAAGTTTTCAGAG
+ATGAGAATGTGCCTTCGGGAACCGTGAGACAGGTGCTGCATGGCTGTCGTCAGCTCGTGTTGTGAAATGTTGGGTT
+AAGTCCCGCAACGAGCGCAACCCTTATCCTTTGTTGCCAGCGGTCCGGCCGGGAACTCAAAGGAGACTGCCAGTGA
+TAAACTGGAGGAAGGTGGGGATGACGTCAAGTCATCATGGCCCTTACGACCAGGGCTACACACGTGCTACAATGGC
+GCATACAAAGAGAAGCGACCTCGCGAGAGCAAGCGGACCTCATAAAGTGCGTCGTAGTCCGGATTGGAGTCTGCAA
+CTCGACTCCATGAAGTCGGAATCGCTAGTAATCGTGGATCAGAATGCCACGGTGAATACGTTCCCGGGCCTTGTAC
+ACACCGCCCGTCACACCATGGGAGTGGGTTGCAAAAGAAGTAGGTAGCTTAACCTTCGGGAGGGCGCTTACCACTT
+TGTGATTCATGACTGGGGTG
+
+
+Trimmed seq
+
+ACATGCAAGTCGAACGGTAACAGGAAGCAGCTTGCTGCTTCGCTGACGAGTGGCGGACGGGTGAGTAATGTCTGGG
+AAGCTGCCTGATGGAGGGGGATAACTACTGGAAACGGTAGCTAATACCGCATAATGTCGCAAGACCAAAGAGGGGG
+ACCTTCGGGCCTCTTGCCATCGGATGTGCCCAGATGGGATTAGCTTGTTGGTGGGGTAACGGCTCACCAAGGCGAC
+GATCCCTAGCTGGTCTGAGAGGATGACCAGCCACACTGGAACTGAGACACGGTCCAGACTCCTACGGGAGGCAGCA
+GTGGGGAATATTGCACAATGGGCGCAAGCCTGATGCAGCCATGCCGC
+
+align.seqs(fasta= ecoli_v3_v4.txt, reference= 138_silva_align.align)
+
+ 
+
+For analysis in R, once all the final files are made use following command 
+ 
+count.seqs(count=final.count_table, compress=f)  
+
+
+
+#Now we have a couple of options for clustering sequences into OTUs. 
+#For a small dataset like this, we can do the traditional approach using dist.seqs and cluster:
+	dist.seqs(fasta=final.fasta, cutoff=0.03)
+
+	cluster(column=final.dist, count=final.count_table)   
+#(Probably unnecessary step) 
+
+#Output File :  final.dist 
+
+
+cluster.split(fasta=final.fasta, count=final.count_table, taxonomy=final.taxonomy, taxlevel=4, cutoff=0.03)
+
+
+
+ 
+
